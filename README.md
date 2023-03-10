@@ -13,7 +13,7 @@ Implementation
 - Architecture
     - Have (regular) models learn and produce either score or embeddings from each picture -> Feed into a final model + patient's other info -> Final prediction
 
-- Resources
+- Dataset EDA
 - https://www.kaggle.com/code/andradaolteanu/rsna-breast-cancer-eda-pytorch-baseline
 - Overview 
     - Target
@@ -26,11 +26,24 @@ Implementation
         - View: 0 - 5
 
 
-
+Image
 [https://www.kaggle.com/code/theoviel/dicom-resized-png-jpg](Dicom -> Resized PNG/JPG)
     - Viewing images using pydicom
     - Resizing images
+
         - 256x256 : https://www.kaggle.com/datasets/theoviel/rsna-breast-cancer-256-pngs
+
         - 512x512 : https://www.kaggle.com/datasets/theoviel/rsna-breast-cancer-512-pngs
+
         - 1024x1204: https://www.kaggle.com/datasets/theoviel/rsna-breast-cancer-1024-pngs
         
+
+[Cropping images and scaling methods](https://www.kaggle.com/code/chg0901/new-crop-and-hist-scaled-method-with-dali-tensor)
+- Crop, flip and normalize values
+
+
+[RSNA: Cut Off Empty Space from Images](https://www.kaggle.com/code/vslaykovsky/rsna-cut-off-empty-space-from-images)
+
+Models:
+- Fast AI
+- ResNet 50
