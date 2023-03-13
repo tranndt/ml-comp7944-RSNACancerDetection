@@ -46,4 +46,4 @@ Image
 
 Models:
 - Fast AI
-- ResNet 50
+- ResNet50
