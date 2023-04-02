@@ -1,4 +1,4 @@
-,patient_id,image_id,laterality,view,age,cancer,biopsy,invasive,BIRADS,implant,density,difficult_negative_case,img_path
+,patient_id,image_id,laterality,view,age,cancer,biopsy,invasive,BIRADS,implant,density,difficult_negative_case,path
 40044,53266,1392675814,0,5,64.0,0,0,0,0.0,0,1,1.0,./256px/53266_1392675814.png
 21271,32577,174870874,0,5,55.0,0,0,0,1.0,0,0,0.0,./256px/32577_174870874.png
 23610,35166,1516160364,0,5,65.0,0,0,0,1.0,0,1,0.0,./256px/35166_1516160364.png
