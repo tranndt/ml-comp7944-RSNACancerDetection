@@ -14,11 +14,11 @@ PRE_CROP_SIZE = 1024
 POST_CROP_SIZE = 512
 
 
-def denoise(img, strength=7, window_size=7, window_search=21):
+def denoise(img, strength=4, window_size=11, window_search=22):
     return cv2.fastNlMeansDenoising(img, None, strength, window_size, window_search) 
 
 
-def clahe(img, clip_limit=5.0, tile_size=(32,32)):
+def clahe(img, clip_limit=4.5, tile_size=(32,32)):
     # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
     clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_size)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -27,7 +27,7 @@ def clahe(img, clip_limit=5.0, tile_size=(32,32)):
 
 
 def bilateral_filtering(img):
-    return cv2.bilateralFilter(img, 5, 10, 10)
+    return cv2.bilateralFilter(img, 5, 20, 20)
 
 
 def make_square_resize(input_path, expand):
