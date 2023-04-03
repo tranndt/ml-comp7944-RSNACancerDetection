@@ -1,2 +1,5 @@
 /256px/
 /.venv/
+
+/data/*
+/processed_data/*
