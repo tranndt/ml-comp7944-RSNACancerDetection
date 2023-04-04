@@ -1,4 +1,4 @@
 /256px/
 /.venv/
-/wandb
-/.history
+/data/*
+/processed_data/*
