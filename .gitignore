@@ -2,3 +2,5 @@
 /.venv/
 /data/*
 /processed_data/*
+*trained_model*/
+__pycache__/*

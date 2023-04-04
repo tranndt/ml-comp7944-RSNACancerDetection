@@ -13,7 +13,8 @@ def get_split(df, prefix="standard"):
     train_patient_ids, test_patient_ids = train_test_split(patient_ids, test_size=SPLIT_RATIO, random_state=42)
 
     # Convert categorical columns to integers using label encoding
-    categorical_cols = ['laterality', 'view', 'cancer', 'biopsy', 'invasive', 'BIRADS', 'implant', 'density', 'machine_id', 'difficult_negative_case']
+    categorical_cols = ['cancer', 'biopsy', 'invasive', 'difficult_negative_case']
+    onehot_cols = ['laterality', 'view', 'BIRADS', 'implant', 'density', 'machine_id', 'site_id']
     label_encoders = {}
     for col in categorical_cols:
         le = LabelEncoder()
@@ -22,6 +23,9 @@ def get_split(df, prefix="standard"):
 
     # Normalize the age column
     df['age'] = (df['age'] - df['age'].mean()) / df['age'].std()
+
+    k_hot_df = pd.get_dummies(df[onehot_cols])
+    df = pd.concat([df.drop(onehot_cols, axis=1), k_hot_df], axis=1)
 
     train_df = df[df['patient_id'].isin(train_patient_ids)]
     test_df = df[df['patient_id'].isin(test_patient_ids)]
@@ -33,6 +37,9 @@ def get_split(df, prefix="standard"):
 
 if __name__ == "__main__":
     df = pd.read_csv("train.csv")
+    df['BIRADS'] = df['BIRADS'].fillna(-1).astype(int).astype('category')
+    df['site_id'] = df['site_id'].fillna(-1).astype(int).astype('category')
+    df['machine_id'] = df['machine_id'].fillna(-1).astype(int).astype('category')
     get_split(df, "standard")
     cancer_difficult_df = df[(df['difficult_negative_case'] == 1) | (df['cancer'] == 1)]
     get_split(cancer_difficult_df, "hard")
