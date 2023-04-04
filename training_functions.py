@@ -81,7 +81,8 @@ def get_model(model:str):
     elif model == 'vit':
         result = torchvision.models.vit_b_16(weights='IMAGENET1K_V1')
         num_features = result.heads.head.in_features
-        result.heads.head = torch.nn.Linear(num_features, 2)        
+        result.heads.head = torch.nn.Linear(num_features, 2)   
+             
     else:
         assert False, "Model not supported"
     return result
