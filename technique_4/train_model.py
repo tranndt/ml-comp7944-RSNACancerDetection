@@ -15,6 +15,11 @@ from progress_bar import progress_bar
 from sklearn.metrics import balanced_accuracy_score
 from training_functions import get_dataset, get_model, save_results
 from CustomVIT import vit_b_16
+import random
+import numpy as np
+torch.random.manual_seed(0)
+random.seed(0)
+np.random.seed(0)
 
 
 def train(epoch, max_epochs, net, patch_producer, trainloader, optimizer, scheduler, criterion, device, cosine=False):
@@ -69,7 +74,7 @@ def test(epoch, max_epochs, net, patch_producer, testloader, criterion, device):
                          % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds)))
     return 100.*balanced_accuracy_score(all_targets, all_preds)
 
-def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int, learning_rate:float, max_lr:float, momentum:float, save_path:str, bias=0.1, cosine=False):
+def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int, learning_rate:float, lr_p, max_lr:float, momentum:float, save_path:str, bias=0.1, cosine=False):
     best_acc = -1
     best_name = ""
     
@@ -77,7 +82,7 @@ def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD([
         {'params': model.parameters(), 'weight_decay': 5e-4, 'lr': learning_rate, 'momentum': momentum},
-        {'params': patch_producer.parameters(), 'weight_decay': 5e-4, 'lr': 1e-3, 'momentum': momentum}])
+        {'params': patch_producer.parameters(), 'weight_decay': 5e-4, 'lr': lr_p, 'momentum': momentum}])
     if not cosine:
         scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr, epochs=epochs, steps_per_epoch=len(trainloader))
     else:
@@ -98,7 +103,7 @@ def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int
     return best_name, best_acc
 
 
-def main(dataset:str, model_name:str, epochs:int, learning_rate:float, batch_size:int, max_lr:float, momentum:float, output_prefix:str, cosine:bool):
+def main(dataset:str, model_name:str, epochs:int, learning_rate:float, lr_p, batch_size:int, max_lr:float, momentum:float, output_prefix:str, cosine:bool):
     print("CUDA Available: ", torch.cuda.is_available())
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     trainloader, testloader, bias = get_dataset(batch_size, individual=True, return_meta=True, tile=True)    
@@ -109,7 +114,7 @@ def main(dataset:str, model_name:str, epochs:int, learning_rate:float, batch_siz
     model.to(device)
     patch_producer.to(device)
     os.makedirs("trained_models/" + model_name +"/", exist_ok=True)
-    best_name, best_accuracy = fit_model(model, patch_producer, trainloader, testloader, device, epochs, learning_rate, max_lr, momentum, "trained_models/" + model_name + "/" + output_prefix + dataset + "_" + model_name, bias, cosine)
+    best_name, best_accuracy = fit_model(model, patch_producer, trainloader, testloader, device, epochs, learning_rate, lr_p, max_lr, momentum, "trained_models/" + model_name + "/" + output_prefix + dataset + "_" + model_name, bias, cosine)
     print("Training complete: " + best_name + " with accuracy: " + str(round(best_accuracy, 4)))
 
 
@@ -120,6 +125,7 @@ if __name__ == "__main__":
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
     parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
+    parser.add_argument('--learning_rate_p', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--momentum', type=float, default=0.4, help='SGD Momentum')
@@ -137,6 +143,7 @@ if __name__ == "__main__":
             for cosine in cosines:
                 print("Training with lr: " + str(lr) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
                 tag = "cosine_"+str(cosine)+"_"+str(lr)+"_"+str(momentum) 
-                _, accuracy = main(args.dataset, args.model, args.epochs, lr, args.batch_size, args.max_lr, momentum, tag, cosine)
+                _, accuracy = main(args.dataset, args.model, args.epochs, lr, args.learning_rate_p, args.batch_size, args.max_lr, momentum, tag, cosine)
                 results.append(tag + "___" + str(accuracy))
                 save_results(results, result_file)
+

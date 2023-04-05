@@ -27,5 +27,5 @@ class PatchProducer(nn.Module):
         x = self.bn3(x)
         x = self.dropout(x)
         x = self.fc4(x)
-        x = self.batch_norm(x)
+        # x = self.batch_norm(x)
         return x.reshape(x.shape[0], self.channels, self.patch_len, self.patch_len)

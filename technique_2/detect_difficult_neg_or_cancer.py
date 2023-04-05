@@ -9,6 +9,11 @@ import sys
 import time
 sys.path.append(os.path.abspath('..'))
 from training_functions import get_dataset, get_model, fit_model, save_results
+import random
+import numpy as np
+torch.random.manual_seed(0)
+random.seed(0)
+np.random.seed(0)
 
 
 def main(dataset:str, model_name:str, epochs:int, learning_rate:float, batch_size:int, max_lr:float, momentum:float, output_prefix:str, cosine):
