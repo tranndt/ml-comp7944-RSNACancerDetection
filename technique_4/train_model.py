@@ -61,8 +61,8 @@ def test(epoch, max_epochs, net, patch_producer, testloader, criterion, device):
         for batch_idx, (inputs, targets, meta) in enumerate(testloader):
             inputs, targets, meta = inputs.to(device), targets.to(device), meta.to(device)
             patch = patch_producer(meta)
-            inputs[:, :, :16, 16:] = patch
-            outputs = net(inputs)
+            patch = patch.reshape(patch.shape[0], -1)
+            outputs = net(inputs, patch)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
