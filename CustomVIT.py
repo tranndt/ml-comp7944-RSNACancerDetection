@@ -2,7 +2,7 @@ import math
 from collections import OrderedDict
 from functools import partial
 from typing import Any, Callable, Dict, List, NamedTuple, Optional
-
+from attention import BiAttentionBlockForCheckpoint
 import torch
 import torch.nn as nn
 
@@ -389,6 +389,8 @@ class VisionTransformerFaster(nn.Module):
         self.intermediate_linear3 = nn.Linear(hidden_dim, 1)
         self.intermediate_dropout = nn.Dropout(dropout)
         self.intermediate_softmax = nn.Softmax(dim=1)
+        
+        self.attn = BiAttentionBlockForCheckpoint(v_dim=hidden_dim, l_dim=hidden_dim, embed_dim=hidden_dim, dropout=dropout, num_heads=8)
 
         if conv_stem_configs is not None:
             # As per https://arxiv.org/abs/2106.14881
@@ -468,7 +470,6 @@ class VisionTransformerFaster(nn.Module):
             nn.init.zeros_(self.heads.head.bias)
 
     def _process_input(self, x: torch.Tensor, patch) -> torch.Tensor:
-        print(x.shape)
         n, c, h, w = x.shape
         p = self.patch_size
         torch._assert(h == self.image_size, f"Wrong image height! Expected {self.image_size} but got {h}!")
@@ -487,15 +488,10 @@ class VisionTransformerFaster(nn.Module):
         # embedding dimension
         
         x = x.permute(0, 2, 1)
-        
         # patch is (n, hidden_dim)
-        patch = patch.unsqueeze(1).repeat(1, x.shape[1], 1)
-        prod = torch.mul(x, patch)
-        attn = self.intermediate_linear3(torch.tanh(self.intermediate_linear1(x) + self.intermediate_linear2(patch)))
-        attn = F.softmax(attn, dim=1)
-        attended = torch.sum(torch.mul(prod, attn), dim=1)
-        attended = attended.unsqueeze(1)
-        return x + attended
+        patch = patch.unsqueeze(1)
+        x, patch = self.attn(x, patch)
+        return x
     
 
     def forward(self, x: torch.Tensor, patch: torch.Tensor):
