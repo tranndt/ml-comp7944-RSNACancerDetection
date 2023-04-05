@@ -22,6 +22,11 @@ import albumentations.augmentations.transforms as AT
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, message="y_pred contains classes not in y_true")
 
+def save_results(results, file_name):
+    with open(file_name, 'w') as f:
+        for result in results:
+            f.write(str(result) + '\n')
+
 
 def get_dataset(batch_size, individual=False, get_cancer=True, tile=False, return_meta=False, split_path='../data_splits/standard/'):
     file = open(os.path.abspath(split_path+'mean_std.txt'), 'r')
@@ -77,6 +82,9 @@ def get_model(model:str):
         result.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
     elif model == 'resnet50':
         result = torchvision.models.resnet50(num_classes=2)
+        result.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    elif model == 'resnext50':
+        result = torchvision.models.resnext50_32x4d(num_classes=2)
         result.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
     elif model == 'vit':
         result = torchvision.models.vit_b_16(weights='IMAGENET1K_V1')
@@ -153,7 +161,8 @@ def fit_model(model, trainloader, testloader, device, epochs:int, learning_rate:
             if best_name != "":
                 os.remove(best_name)
             best_acc = acc
-            best_name = save_path + "_" + str(epoch) + ".pth"
+            best_name = save_path + "_" + str(epoch) + ".pth" # CHANGED TO REDUCE SAVE SIZES
+            best_name = save_path + ".pth"
             torch.save(model.state_dict(), best_name)
     f = open(save_path + "_best.txt", "w")
     f.write(str(best_acc))

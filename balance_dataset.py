@@ -4,6 +4,7 @@ from sklearn.utils import resample
 
 def resample_data(path):
     df = pd.read_csv(path + 'train_split.csv')
+    df = df.dropna()
     class_counts = df['cancer'].value_counts()
 
     # Calculate the number of examples to match the majority class
