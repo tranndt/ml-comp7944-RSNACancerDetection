@@ -6,12 +6,14 @@ from torchvision import transforms
 from torch.utils.data.dataset import Dataset
 import numpy as np
 
-
+# site_id,patient_id,image_id,laterality,view,age,cancer,biopsy,invasive,BIRADS,implant,density,machine_id,difficult_negative_case
+# site_id,patient_id,image_id,laterality,view,age,implant,machine_id,prediction_id
 
 class MammogramDataset(Dataset):
     # individual = True if you want to get the individual images
     # get_cancer = True if you want to get the cancer value vs difficult case value
     def __init__(self, csv_path:str, data_path:str='processed_data/', transform=None, individual=False, get_cancer=True, tile=False, return_meta=False):
+        tile = True # make tile always true so we can use pretrained
         self.transform = transform
         self.df = pd.read_csv(csv_path)
         self.data_len = len(self.df)
@@ -33,9 +35,9 @@ class MammogramDataset(Dataset):
         return float(1/(1-bias)), float(1/bias)
 
     def _get_meta(self, meta, row):
-        exclude_cols = ['patient_id', 'image_id', 'cancer', 'biopsy', 'invasive', 'difficult_negative_case']
+        exclude_cols = ['patient_id', 'image_id', 'cancer', 'biopsy', 'invasive', 'difficult_negative_case', 'BIRADS', 'density', 'implant']
         if self.return_meta:
-            X = row.drop(columns=exclude_cols)
+            X = row.drop(exclude_cols).astype(float)
             meta.append(torch.tensor(X.values, dtype=torch.float32))
         return None
 

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='mammograms', help='Dataset to train on')
     parser.add_argument('--model', type=str, default='resnet50', help='Model to train')
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
-    parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=40, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-1, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [5e-3, 1e-3, 5e-4, 1e-4]
+    learning_rates = [1e-3, 5e-4, 1e-4]
     momentums = [0.9, 0.1]
     cosines = [False]
     result_file = "results_difficult_or_neg" + str(time.time()) + ".txt"

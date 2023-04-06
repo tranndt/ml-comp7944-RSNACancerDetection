@@ -13,7 +13,7 @@ import sys
 sys.path.append(os.path.abspath('..'))
 from mammogram_dataset import MammogramDataset
 from progress_bar import progress_bar
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import balanced_accuracy_score, f1_score
 import albumentations as A
 import albumentations.pytorch as AP
 import albumentations.augmentations.transforms as AT
@@ -26,6 +26,29 @@ def save_results(results, file_name):
     with open(file_name, 'w') as f:
         for result in results:
             f.write(str(result) + '\n')
+
+
+def pfbeta(labels, predictions, beta = 1):
+    y_true_count = 0
+    ctp = 0
+    cfp = 0
+
+    for idx in range(len(labels)):
+        prediction = min(max(predictions[idx], 0), 1)
+        if (labels[idx]):
+            y_true_count += 1
+            ctp += prediction
+        else:
+            cfp += prediction
+
+    beta_squared = beta * beta
+    c_precision = ctp / (ctp + cfp)
+    c_recall = ctp / y_true_count
+    if (c_precision > 0 and c_recall > 0):
+        result = (1 + beta_squared) * (c_precision * c_recall) / (beta_squared * c_precision + c_recall)
+        return result
+    else:
+        return 0
 
 
 def get_dataset(batch_size, individual=False, get_cancer=True, tile=False, return_meta=False, split_path='../data_splits/standard/'):
@@ -80,17 +103,18 @@ def get_model(model:str):
     if model == 'resnet18':
         result = torchvision.models.resnet18(num_classes=2)
         result.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        raise NotImplementedError
     elif model == 'resnet50':
-        result = torchvision.models.resnet50(num_classes=2)
-        result.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        result = torchvision.models.resnet50(weights='IMAGENET1K_V1')
+        result.fc = torch.nn.Linear(2048, 2)
     elif model == 'resnext50':
         result = torchvision.models.resnext50_32x4d(num_classes=2)
         result.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        raise NotImplementedError
     elif model == 'vit':
         result = torchvision.models.vit_b_16(weights='IMAGENET1K_V1')
         num_features = result.heads.head.in_features
         result.heads.head = torch.nn.Linear(num_features, 2)   
-             
     else:
         assert False, "Model not supported"
     return result
@@ -115,8 +139,8 @@ def train(epoch, max_epochs, net, trainloader, optimizer, scheduler, criterion, 
         _, predicted = outputs.max(1)
         all_preds.extend(predicted.cpu().tolist())
         all_targets.extend(targets.cpu().tolist())
-        progress_bar(epoch, max_epochs, batch_idx, len(trainloader), 'Loss: %.3f   Acc: %.3f'
-                     % (train_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds)))
+        progress_bar(epoch, max_epochs, batch_idx, len(trainloader), 'Loss: %.3f   Acc: %.3f   pF1: %3f'
+                     % (train_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds), pfbeta(all_targets, all_preds)))
     if cosine:
         scheduler.step()
 
@@ -137,9 +161,9 @@ def test(epoch, max_epochs, net, testloader, criterion, device):
             all_preds.extend(predicted.cpu().tolist())
             all_targets.extend(targets.cpu().tolist())
 
-            progress_bar(epoch, max_epochs, batch_idx, len(testloader), 'Loss: %.3f   Acc: %.3f%%'
-                         % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds)))
-    return 100.*balanced_accuracy_score(all_targets, all_preds)
+            progress_bar(epoch, max_epochs, batch_idx, len(testloader), 'Loss: %.3f   Acc: %.3f%%   pF1: %3f'
+                         % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds), pfbeta(all_targets, all_preds)))
+    return pfbeta(all_targets, all_preds)
 
 
 def fit_model(model, trainloader, testloader, device, epochs:int, learning_rate:float, max_lr:float, momentum:float, save_path:str, bias=0.1, cosine=False):
@@ -161,8 +185,7 @@ def fit_model(model, trainloader, testloader, device, epochs:int, learning_rate:
             if best_name != "":
                 os.remove(best_name)
             best_acc = acc
-            best_name = save_path + "_" + str(epoch) + ".pth" # CHANGED TO REDUCE SAVE SIZES
-            best_name = save_path + ".pth"
+            best_name = save_path + "_" + str(round(best_acc, 3)) + "_" + str(epoch) + ".pth" 
             torch.save(model.state_dict(), best_name)
     f = open(save_path + "_best.txt", "w")
     f.write(str(best_acc))

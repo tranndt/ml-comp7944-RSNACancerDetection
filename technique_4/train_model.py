@@ -12,8 +12,8 @@ sys.path.append(os.path.abspath('..'))
 from patch_producer import PatchProducer
 import time
 from progress_bar import progress_bar
-from sklearn.metrics import balanced_accuracy_score
-from training_functions import get_dataset, get_model, save_results
+from sklearn.metrics import balanced_accuracy_score, f1_score
+from training_functions import get_dataset, get_model, save_results, pfbeta
 from CustomVIT import vit_b_16
 import random
 import numpy as np
@@ -45,8 +45,8 @@ def train(epoch, max_epochs, net, patch_producer, trainloader, optimizer, schedu
         all_preds.extend(predicted.cpu().tolist())
         all_targets.extend(targets.cpu().tolist())
 
-        progress_bar(epoch, max_epochs, batch_idx, len(trainloader), 'Loss: %.3f   Acc: %.3f%%'
-                     % (train_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds)))
+        progress_bar(epoch, max_epochs, batch_idx, len(trainloader), 'Loss: %.3f   Acc: %.3f   pF1: %3f'
+                     % (train_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds), pfbeta(all_targets, all_preds)))
     if cosine:
         scheduler.step()
 
@@ -70,9 +70,9 @@ def test(epoch, max_epochs, net, patch_producer, testloader, criterion, device):
             all_preds.extend(predicted.cpu().tolist())
             all_targets.extend(targets.cpu().tolist())
 
-            progress_bar(epoch, max_epochs, batch_idx, len(testloader), 'Loss: %.3f   Acc: %.3f%%'
-                         % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds)))
-    return 100.*balanced_accuracy_score(all_targets, all_preds)
+            progress_bar(epoch, max_epochs, batch_idx, len(testloader), 'Loss: %.3f   Acc: %.3f%%   pF1: %3f'
+                         % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds), pfbeta(all_targets, all_preds)))
+    return pfbeta(all_targets, all_preds)
 
 def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int, learning_rate:float, lr_p, max_lr:float, momentum:float, save_path:str, bias=0.1, cosine=False):
     best_acc = -1
@@ -95,7 +95,7 @@ def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int
             if best_name != "":
                 os.remove(best_name)
             best_acc = acc
-            best_name = save_path + "_" + str(epoch) + ".pth"
+            best_name = save_path + "_" + str(round(best_acc, 3)) + "_" + str(epoch) + ".pth" 
             torch.save(model.state_dict(), best_name)
     f = open(save_path + "_best.txt", "w")
     f.write(str(best_acc))
@@ -110,7 +110,7 @@ def main(dataset:str, model_name:str, epochs:int, learning_rate:float, lr_p, bat
     model = get_model(model_name)
     model = vit_b_16(intermediate_embedding_size=768)
     model.to(device)
-    patch_producer = PatchProducer(36, 16, 0.2)
+    patch_producer = PatchProducer()
     model.to(device)
     patch_producer.to(device)
     os.makedirs("trained_models/" + model_name +"/", exist_ok=True)
@@ -123,27 +123,30 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='mammograms', help='Dataset to train on')
     parser.add_argument('--model', type=str, default='vit', help='Model to train')
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
-    parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=25, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--learning_rate_p', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
-    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=16, help='Batch size')
     parser.add_argument('--momentum', type=float, default=0.4, help='SGD Momentum')
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [1e-3, 5e-4, 1e-4, 5e-5]
+    learning_rates = [5e-4, 1e-4, 1e-5]
+    learning_rates_p = [1e-3, 5e-4, 1e-4]
     momentums = [0.9]
     cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []
     
     for lr in learning_rates:
-        for momentum in momentums:
-            for cosine in cosines:
-                print("Training with lr: " + str(lr) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
-                tag = "cosine_"+str(cosine)+"_"+str(lr)+"_"+str(momentum) 
-                _, accuracy = main(args.dataset, args.model, args.epochs, lr, args.learning_rate_p, args.batch_size, args.max_lr, momentum, tag, cosine)
-                results.append(tag + "___" + str(accuracy))
-                save_results(results, result_file)
+        for lr_p in learning_rates_p:
+            for momentum in momentums:
+                for cosine in cosines:
+                    print("Training with lr: " + str(lr) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
+                    tag = "cosine_"+str(cosine)+"_"+str(lr)+"_"+str(lr_p)+"_"+str(momentum) 
+                    _, accuracy = main(args.dataset, args.model, args.epochs, lr, lr_p, args.batch_size, args.max_lr, momentum, tag, cosine)
+                    results.append(tag + "___" + str(accuracy))
+                    save_results(results, result_file)
+
 

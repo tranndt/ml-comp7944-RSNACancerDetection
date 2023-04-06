@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class PatchProducer(nn.Module):
-    def __init__(self, input_dim=36, patch_len=16, dropout=0.2, channels=3):
+    def __init__(self, input_dim=21, patch_len=16, dropout=0.2, channels=3):
         super(PatchProducer, self).__init__()
         self.channels=channels
         self.patch_len = patch_len
@@ -27,5 +27,5 @@ class PatchProducer(nn.Module):
         x = self.bn3(x)
         x = self.dropout(x)
         x = self.fc4(x)
-        # x = self.batch_norm(x)
+        x = self.batch_norm(x)
         return x.reshape(x.shape[0], self.channels, self.patch_len, self.patch_len)

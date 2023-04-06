@@ -7,6 +7,8 @@ OUTPUT_LOC = "data_splits/"
 SPLIT_RATIO = 0.1
 
 
+# site_id,patient_id,image_id,laterality,view,age,implant,machine_id,prediction_id
+
 def get_split(df, prefix="standard"):
 
     patient_ids = df.patient_id.unique()
@@ -14,7 +16,7 @@ def get_split(df, prefix="standard"):
 
     # Convert categorical columns to integers using label encoding
     categorical_cols = ['cancer', 'biopsy', 'invasive', 'difficult_negative_case']
-    onehot_cols = ['laterality', 'view', 'BIRADS', 'implant', 'density', 'machine_id', 'site_id']
+    onehot_cols = ['laterality', 'view', 'implant', 'machine_id', 'site_id']
     label_encoders = {}
     for col in categorical_cols:
         le = LabelEncoder()
@@ -37,7 +39,6 @@ def get_split(df, prefix="standard"):
 
 if __name__ == "__main__":
     df = pd.read_csv("train.csv")
-    df['BIRADS'] = df['BIRADS'].fillna(-1).astype(int).astype('category')
     df['site_id'] = df['site_id'].fillna(-1).astype(int).astype('category')
     df['machine_id'] = df['machine_id'].fillna(-1).astype(int).astype('category')
     get_split(df, "standard")
