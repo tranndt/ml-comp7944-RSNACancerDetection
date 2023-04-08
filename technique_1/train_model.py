@@ -25,7 +25,7 @@ def main(dataset:str, model_name:str, epochs:int, learning_rate:float, batch_siz
     os.makedirs("trained_models/" + model_name +"/", exist_ok=True)
     best_name, best_accuracy = fit_model(model, trainloader, testloader, device, epochs, learning_rate, max_lr, momentum, "trained_models/" + model_name + "/" + output_prefix + dataset + "_" + model_name, bias, cosine)
     print("Training complete: " + best_name + " with accuracy: " + str(round(best_accuracy, 4)))
-    return best_name, best_accuracy
+    return str(round(best_accuracy, 4))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model on a dataset')
@@ -52,7 +52,7 @@ if __name__ == "__main__":
             for cosine in cosines:
                 print("Training with lr: " + str(lr) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
                 tag = "cosine_"+str(cosine)+"_"+str(lr)+"_"+str(momentum) 
-                _, accuracy = main(args.dataset, args.model, args.epochs, lr, args.batch_size, args.max_lr, momentum, tag, cosine)
+                accuracy = main(args.dataset, args.model, args.epochs, lr, args.batch_size, args.max_lr, momentum, tag, cosine)
                 results.append(tag + "___" + str(accuracy))
                 save_results(results, result_file)
     

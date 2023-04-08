@@ -42,8 +42,8 @@ def pfbeta(labels, predictions, beta = 1):
             cfp += prediction
 
     beta_squared = beta * beta
-    c_precision = ctp / (ctp + cfp)
-    c_recall = ctp / y_true_count
+    c_precision = ctp / max((ctp + cfp), 1)
+    c_recall = ctp / max(y_true_count, 1)
     if (c_precision > 0 and c_recall > 0):
         result = (1 + beta_squared) * (c_precision * c_recall) / (beta_squared * c_precision + c_recall)
         return result
