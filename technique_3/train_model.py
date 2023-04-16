@@ -137,7 +137,7 @@ if __name__ == "__main__":
     learning_rates = [1e-4, 5e-4]
     learning_rates_p = [1e-4, 5e-4]
     momentums = [0.9]
-    cosines = [True, False]
+    cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []
     

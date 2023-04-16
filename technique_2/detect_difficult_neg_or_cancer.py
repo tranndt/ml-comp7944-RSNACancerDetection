@@ -31,9 +31,9 @@ def main(dataset:str, model_name:str, epochs:int, learning_rate:float, batch_siz
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model on a dataset')
     parser.add_argument('--dataset', type=str, default='mammograms', help='Dataset to train on')
-    parser.add_argument('--model', type=str, default='resnet50', help='Model to train')
+    parser.add_argument('--model', type=str, default='vit', help='Model to train')
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
-    parser.add_argument('--epochs', type=int, default=40, help='Number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=25, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-1, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
