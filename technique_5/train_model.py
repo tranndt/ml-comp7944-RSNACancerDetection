@@ -71,7 +71,7 @@ def test(epoch, max_epochs, net, patch_producer, testloader, criterion, device):
 
             progress_bar(epoch, max_epochs, batch_idx, len(testloader), 'Loss: %.3f   Acc: %.3f%%   pF1: %3f'
                          % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds), pfbeta(all_targets, all_preds)))
-    return pfbeta(all_targets, all_preds)
+    return balanced_accuracy_score(all_targets, all_preds)
 
 def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int, learning_rate:float, lr_p, max_lr:float, momentum:float, save_path:str, bias=0.1, cosine=False):
     best_acc = -1

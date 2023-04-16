@@ -71,7 +71,7 @@ def test(epoch, max_epochs, net, patch_producer, testloader, criterion, device):
 
             progress_bar(epoch, max_epochs, batch_idx, len(testloader), 'Loss: %.3f   Acc: %.3f%%   pF1: %3f'
                          % (test_loss/(batch_idx+1), 100.*balanced_accuracy_score(all_targets, all_preds), pfbeta(all_targets, all_preds)))
-    return pfbeta(all_targets, all_preds)
+    return balanced_accuracy_score(all_targets, all_preds)
 
 def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int, learning_rate:float, lr_p, max_lr:float, momentum:float, save_path:str, bias=0.1, cosine=False):
     best_acc = -1
@@ -134,9 +134,9 @@ if __name__ == "__main__":
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [5e-4, 1e-4, 1e-5]
-    learning_rates_p = [1e-3, 5e-4, 1e-4]
-    momentums = [0.9]
+    learning_rates = [1e-3]
+    learning_rates_p = [5e-4]
+    momentums = [0.7]
     cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         for lr_p in learning_rates_p:
             for momentum in momentums:
                 for cosine in cosines:
-                    print("Training with lr: " + str(lr) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
+                    print("Training with lr: " + str(lr) + "and lrp " + str(lr_p) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
                     tag = "cosine_"+str(cosine)+"_"+str(lr)+"_"+str(lr_p)+"_"+str(momentum) 
                     accuracy = main(args.dataset, args.model, args.epochs, lr, lr_p, args.batch_size, args.max_lr, momentum, tag, cosine)
                     results.append(tag + "___" + str(accuracy))
