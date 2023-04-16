@@ -125,7 +125,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='mammograms', help='Dataset to train on')
     parser.add_argument('--model', type=str, default='vit', help='Model to train')
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
-    parser.add_argument('--epochs', type=int, default=25, help='Number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=12, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--learning_rate_p', type=float, default=5e-4, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
@@ -134,10 +134,10 @@ if __name__ == "__main__":
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [1e-3]
-    learning_rates_p = [5e-4]
-    momentums = [0.7]
-    cosines = [True]
+    learning_rates = [1e-4, 5e-4]
+    learning_rates_p = [1e-4, 5e-4]
+    momentums = [0.9]
+    cosines = [True, False]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []
     
