@@ -95,7 +95,9 @@ def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int
                 os.remove(best_name)
             best_acc = acc
             best_name = save_path + "_" + str(round(best_acc, 3)) + "_" + str(epoch) + ".pth" 
+            best_name_patch = save_path + "patch_" + str(round(best_acc, 3)) + "_" + str(epoch) + ".pth" 
             torch.save(model.state_dict(), best_name)
+            torch.save(patch_producer.state_dict(), best_name_patch)
     f = open(save_path + "_best.txt", "w")
     f.write(str(best_acc))
     f.close()

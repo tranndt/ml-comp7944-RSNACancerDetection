@@ -99,7 +99,9 @@ def fit_model(model, patch_producer, trainloader, testloader, device, epochs:int
                 os.remove(best_name)
             best_acc = acc
             best_name = save_path + "_" + str(round(best_acc, 3)) + "_" + str(epoch) + ".pth" 
+            best_name_patch = save_path + "patch_" + str(round(best_acc, 3)) + "_" + str(epoch) + ".pth" 
             torch.save(model.state_dict(), best_name)
+            torch.save(patch_producer.state_dict(), best_name_patch)
     f = open(save_path + "_best.txt", "w")
     f.write(str(best_acc))
     f.close()
@@ -125,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='mammograms', help='Dataset to train on')
     parser.add_argument('--model', type=str, default='vit', help='Model to train')
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
-    parser.add_argument('--epochs', type=int, default=12, help='Number of epochs to train')
+    parser.add_argument('--epochs', type=int, default=20, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--learning_rate_p', type=float, default=5e-4, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
@@ -134,8 +136,8 @@ if __name__ == "__main__":
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [1e-4, 5e-4]
-    learning_rates_p = [1e-4, 5e-4]
+    learning_rates = [1e-3]
+    learning_rates_p = [1e-3]
     momentums = [0.9]
     cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"

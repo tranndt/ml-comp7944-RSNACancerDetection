@@ -12,6 +12,8 @@ import os
 import sys
 sys.path.append(os.path.abspath('..'))
 from mammogram_dataset import MammogramDataset
+from prediction_dataset import PredictionDataset
+from pred_nn import PredNN
 from progress_bar import progress_bar
 from sklearn.metrics import balanced_accuracy_score, f1_score
 import albumentations as A
@@ -99,6 +101,19 @@ def get_dataset(batch_size, individual=False, get_cancer=True, tile=False, retur
     return train_dataloader, test_dataloader, train_dataset.get_bias()
 
 
+def get_pred_dataset(batch_size, split_path='../data_splits/standard/', pred_type='T1_resnet50', ret_type="avg"):
+    file_path_prefix = split_path + "balanced_predictions_" + pred_type + "_" 
+    file_path_prefix_test = split_path + "predictions_" + pred_type + "_"
+    
+    train_dataset = PredictionDataset(os.path.abspath(file_path_prefix + 'train_split.csv'), ret_type=ret_type)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, num_workers=2, shuffle=True)
+    
+    test_dataset = PredictionDataset(os.path.abspath(file_path_prefix_test + 'test_split.csv'), ret_type=ret_type)
+    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)   
+    return train_dataloader, test_dataloader, 0
+
+
+
 def get_model(model:str):
     if model == 'resnet18':
         result = torchvision.models.resnet18(num_classes=2)
@@ -115,6 +130,8 @@ def get_model(model:str):
         result = torchvision.models.vit_b_16(weights='IMAGENET1K_V1')
         num_features = result.heads.head.in_features
         result.heads.head = torch.nn.Linear(num_features, 2)   
+    elif model == 'pred_nn_avg':
+        result = PredNN()
     else:
         assert False, "Model not supported"
     return result

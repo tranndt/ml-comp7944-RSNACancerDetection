@@ -35,13 +35,13 @@ if __name__ == "__main__":
     parser.add_argument('--epochs', type=int, default=25, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-1, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
-    parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--momentum', type=float, default=0.9, help='SGD Momentum')
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [1e-3, 5e-4, 1e-4]
-    momentums = [0.9, 0.1]
+    learning_rates = [1e-4]
+    momentums = [0.9]
     cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []
