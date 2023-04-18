@@ -135,9 +135,9 @@ if __name__ == "__main__":
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [5e-4, 5e-4, 1e-4, 5e-5]
-    learning_rates_p = [1e-4, 5e-4]
-    momentums = [0.9]
+    learning_rates = [1e-3,5e-4]
+    learning_rates_p = [1e-4,5e-4]
+    momentums = [0.7,0.9]
     cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []

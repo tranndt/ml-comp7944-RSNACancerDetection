@@ -4,6 +4,7 @@ torchaudio
 scikit-learn
 albumentations
 pytz
-six
+numpy
 pandas
 timm
+Pillow

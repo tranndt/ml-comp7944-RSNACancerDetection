@@ -4,3 +4,5 @@
 /processed_data/*
 *trained_model*/
 __pycache__/*
+__ignore__/*
+.history/
