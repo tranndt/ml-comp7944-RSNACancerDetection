@@ -26,12 +26,15 @@ class PredictionDataset(Dataset):
             index = index.tolist()
         group_key = self.group_keys[index]
         group = self.df.get_group(group_key)
-        is_cancer = group['cancer'].mean()
-        if self.ret_type == 'avg':
-            pred = group['pred'].mean()
+        is_cancer = group['cancer'].mean()            
         row = group.iloc[0]
         row = row.copy()
-        row['pred'] = pred
+        if self.ret_type == 'avg':
+            row['pred'] = group['pred'].mean()
+        elif self.ret_type == 'amm':
+            row['pred'] = group['pred'].mean()
+            row['pred_min'] = group['pred'].min()
+            row['pred_max'] = group['pred'].max()
         row = row.drop(self.exclude_cols).astype(float)
         return torch.tensor(row.values, dtype=torch.float32), int(is_cancer)
 

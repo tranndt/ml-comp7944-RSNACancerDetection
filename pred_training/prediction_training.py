@@ -16,10 +16,10 @@ random.seed(0)
 np.random.seed(0)
 
 
-def main(dataset:str, pred_type:str, model_name:str, epochs:int, learning_rate:float, batch_size:int, max_lr:float, momentum:float, output_prefix:str, cosine):
+def main(dataset:str, pred_type:str, ret_type, model_name:str, epochs:int, learning_rate:float, batch_size:int, max_lr:float, momentum:float, output_prefix:str, cosine):
     print("CUDA Available: ", torch.cuda.is_available())
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    trainloader, testloader, bias = get_pred_dataset(batch_size)
+    trainloader, testloader, bias = get_pred_dataset(batch_size, ret_type=ret_type)
     model = get_model(model_name)
     model.to(device)
     os.makedirs("trained_models/" + pred_type + "/" + model_name +"/", exist_ok=True)
@@ -31,19 +31,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model on a dataset')
     parser.add_argument('--dataset', type=str, default='mammograms', help='Dataset to train on')
     parser.add_argument('--model', type=str, default='pred_nn_avg', help='Model to train')
-    parser.add_argument('--pred_type', type=str, default='T1_resnet50', help='The Technique and model type')
+    parser.add_argument('--pred_type', type=str, default='T3_resnet50', help='The Technique and model type')
+    parser.add_argument('--ret_type', type=str, default='avg', help='Aggregation of predictions')
     parser.add_argument('--output_prefix', type=str, default='', help='Prefix to add to model name, to avoid overlapping experiments.')
     parser.add_argument('--epochs', type=int, default=150, help='Number of epochs to train')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.1, help='Learning rate')
-    parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=256, help='Batch size')
     parser.add_argument('--momentum', type=float, default=0.9, help='SGD Momentum')
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [1e-2]
+    learning_rates = [6e-3]
     momentums = [0.9]
-    cosines = [False]
+    cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"
     results = []
     
@@ -53,7 +54,7 @@ if __name__ == "__main__":
             for cosine in cosines:
                 print("Training with lr: " + str(lr) + " and momentum: " + str(momentum) + " cosine " + str(cosine))
                 tag = "cosine_"+str(cosine)+"_"+str(lr)+"_"+str(momentum) 
-                accuracy = main(args.dataset, args.pred_type, args.model, args.epochs, lr, args.batch_size, args.max_lr, momentum, tag, cosine)
+                accuracy = main(args.dataset, args.pred_type, args.ret_type, args.model, args.epochs, lr, args.batch_size, args.max_lr, momentum, tag, cosine)
                 results.append(tag + "___" + str(accuracy))
                 save_results(results, result_file)
     

@@ -132,6 +132,8 @@ def get_model(model:str):
         result.heads.head = torch.nn.Linear(num_features, 2)   
     elif model == 'pred_nn_avg':
         result = PredNN()
+    elif model == 'pred_nn_amm':
+        result = PredNN(input_dim=24)
     else:
         assert False, "Model not supported"
     return result
