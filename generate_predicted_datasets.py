@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 split_path = 'data_splits/standard/'
 MODEL = "vit"
-TECHNIQUE = 1
+TECHNIQUE = 4
 
 uses_patch = [False, False, True, True, True]
 
@@ -129,7 +129,7 @@ def generate_data(name):
     # increase pandas print column size:
     
     # drop_cols = ['view_AT', 'view_CC', 'view_LM', 'view_ML', 'view_MLO']
-    batch_size = 32
+    batch_size = 16
     cnt = 0
     rows = []
     imgs = torch.tensor([])
