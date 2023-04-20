@@ -1,0 +1,30 @@
+avg, random_forest, n_estimators: 100  max_depth: 5  , 0.6735990168804047
+avg, svm, kernel: linear  , 0.651263957056371
+avg, mlp, hidden_layer_sizes: (100,)  , 0.6766825745067439
+avg, knn, n_neighbors: 3  , 0.5938260994126916
+avg, ada_boost, n_estimators: 100  , 0.6693016382813501
+max, random_forest, n_estimators: 100  max_depth: 5  , 0.678503305965817
+max, svm, kernel: linear  , 0.6164664992950791
+max, mlp, hidden_layer_sizes: (100,)  , 0.6378139159674002
+max, knn, n_neighbors: 3  , 0.5546935667488446
+max, ada_boost, n_estimators: 100  , 0.6551466763169204
+min, random_forest, n_estimators: 100  max_depth: 5  , 0.6641674017445849
+min, svm, kernel: linear  , 0.6454097211227467
+min, mlp, hidden_layer_sizes: (100,)  , 0.6600358868809324
+min, knn, n_neighbors: 3  , 0.5336100242010269
+min, ada_boost, n_estimators: 100  , 0.6308250212984114
+amm, random_forest, n_estimators: 100  max_depth: 5  , 0.5887974125257277
+amm, svm, kernel: linear  , 0.5154592540655463
+amm, mlp, hidden_layer_sizes: (100,)  , 0.511339048092944
+amm, knn, n_neighbors: 3  , 0.5268096110495405
+amm, ada_boost, n_estimators: 100  , 0.5034906777041444
+amms, random_forest, n_estimators: 100  max_depth: 5  , 0.5
+amms, svm, kernel: linear  , 0.5138156952329255
+amms, mlp, hidden_layer_sizes: (100,)  , 0.5089491024510137
+amms, knn, n_neighbors: 3  , 0.5302098176252836
+amms, ada_boost, n_estimators: 100  , 0.5
+rnn, random_forest, n_estimators: 100  max_depth: 5  , 0.5
+rnn, svm, kernel: linear  , 0.5
+rnn, mlp, hidden_layer_sizes: (100,)  , 0.5
+rnn, knn, n_neighbors: 3  , 0.5
+rnn, ada_boost, n_estimators: 100  , 0.5

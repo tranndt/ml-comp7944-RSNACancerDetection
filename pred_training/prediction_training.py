@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_argument('--cosine', type=bool, default=True, help='Use Cosine Annealing')
     args = parser.parse_args()
     
-    learning_rates = [6e-3]
+    learning_rates = [1e-2]
     momentums = [0.9]
     cosines = [True]
     result_file = "results_" + str(time.time()) + ".txt"

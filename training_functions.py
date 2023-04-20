@@ -13,7 +13,7 @@ import sys
 sys.path.append(os.path.abspath('..'))
 from mammogram_dataset import MammogramDataset
 from prediction_dataset import PredictionDataset
-from pred_nn import PredNN
+from pred_nn import PredNN, PredRNN
 from progress_bar import progress_bar
 from sklearn.metrics import balanced_accuracy_score, f1_score
 import albumentations as A
@@ -113,7 +113,6 @@ def get_pred_dataset(batch_size, split_path='../data_splits/standard/', pred_typ
     return train_dataloader, test_dataloader, 0
 
 
-
 def get_model(model:str):
     if model == 'resnet18':
         result = torchvision.models.resnet18(num_classes=2)
@@ -134,6 +133,12 @@ def get_model(model:str):
         result = PredNN()
     elif model == 'pred_nn_amm':
         result = PredNN(input_dim=24)
+    elif model == 'pred_nn_amms':
+        result = PredNN(input_dim=25)
+    elif model == 'pred_nn_pad':
+        result = PredNN(input_dim=31)
+    elif model == 'pred_rnn':
+        result = PredRNN()
     else:
         assert False, "Model not supported"
     return result
