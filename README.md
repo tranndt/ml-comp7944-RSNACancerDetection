@@ -24,5 +24,5 @@ Once the prediction datasets are produced, all classifiers, classifier parameter
 Additionally in the pred_training/ folder, you can find methods for training RNNs, however this did not pan out and was not seriously brought up in the paper.  
 
 Please let us know if you have any questions or would like our copy of the processed data.  
-
+Here is out repo: https://github.com/tranndt/rsna-cancer-detection   
 
