@@ -1,49 +1,28 @@
-# rsna-cancer-detection
+# Multiple Multi-Modal Methods of Malignant Mammogram Classification (M6C)
+
+Before attempting to run the code, please install all requirements found in requirements.txt.  
+Next, you will need to download the kaggle dataset for the scans (https://www.kaggle.com/competitions/rsna-breast-cancer-detection), or use the image versions of the scans posted for convinience (https://www.kaggle.com/datasets/radek1/rsna-mammography-images-as-pngs).  
+
+Next, you will need to preprocess the data, which can be done by running data_preprocessing.py.  
+Afterwards, splits need to be generated using generate_train_test_split.py and rebalanced with balance_dataset.py.  
+Afterwards, the normalization values for each dataset can be generated using split_means_stds.py.  
+
+Now that the data has been downloaded, preprocessed, split and balanced, it is ready to be trained on.  
+Each relevant training code can be found in its relevant folder.  
+Please note that we tried other techniques which we did not include in our paper as it ultimately did not fit our final theme.  
+The techniques in the paper correspond to the folders in our project as follows:  
+Naive classification (Method 1): technique_1/  
+Destructive Patching (Method 2): technique_3/  
+Early Concatenation (Method 3): technique_4/  
+Bidirectional Cross Attention (Method 4): technique_4/  
+
+To run each method, just use the train_model.py file found in each. The best performing models will automatically be saved in the folder, as well as a text file summarizing the training process.  Running these techniques requires substantial GPU memory and time.  
+
+The code for stage 2 training can be found in pred_training/.  
+In order to speed up training on the predictions made by various techniques, they were cached and turned into a new binary classification dataset, this was done using the generate_predicted_datasets.py, which accepts the names of the top performing models across each technique and will produce new datasets in the data_splits/ folder.  
+Once the prediction datasets are produced, all classifiers, classifier parameters and Stage 2 methods can be grid searched on using sklearn_classifiers.py.  This will produce a textfile describing the top performing models and their configurations. 
+Additionally in the pred_training/ folder, you can find methods for training RNNs, however this did not pan out and was not seriously brought up in the paper.  
+
+Please let us know if you have any questions or would like our copy of the processed data.  
 
 
-Project Statement
-
-
-Implementation 
-- Data Preprocessing
-    - Crop out black background from images
-    - Normalize images to the same size 
-    - Reduce details of images
-
-- Architecture
-    - Have (regular) models learn and produce either score or embeddings from each picture -> Feed into a final model + patient's other info -> Final prediction
-
-- Dataset EDA
-- https://www.kaggle.com/code/andradaolteanu/rsna-breast-cancer-eda-pytorch-baseline
-- Overview 
-    - Target
-        - Implants: 1477 - 53229 (2)
-        - Cancer (1/0): 1158-53548 (2%)
-        - Invasive cancer (T/F): 818-340 (70%)
-        - Diffucult cases (T/F): 7705-47001 (16%)
-    - Train preprocessing
-        - Laterality: L - R
-        - View: 0 - 5
-
-
-Image
-[https://www.kaggle.com/code/theoviel/dicom-resized-png-jpg](Dicom -> Resized PNG/JPG)
-    - Viewing images using pydicom
-    - Resizing images
-
-        - 256x256 : https://www.kaggle.com/datasets/theoviel/rsna-breast-cancer-256-pngs
-
-        - 512x512 : https://www.kaggle.com/datasets/theoviel/rsna-breast-cancer-512-pngs
-
-        - 1024x1204: https://www.kaggle.com/datasets/theoviel/rsna-breast-cancer-1024-pngs
-        
-
-[Cropping images and scaling methods](https://www.kaggle.com/code/chg0901/new-crop-and-hist-scaled-method-with-dali-tensor)
-- Crop, flip and normalize values
-
-
-[RSNA: Cut Off Empty Space from Images](https://www.kaggle.com/code/vslaykovsky/rsna-cut-off-empty-space-from-images)
-
-Models:
-- Fast AI
-- ResNet50

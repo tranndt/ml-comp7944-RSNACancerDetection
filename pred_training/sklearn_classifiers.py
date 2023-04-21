@@ -150,7 +150,7 @@ def main(pred_type, ret_type, model_type, configs):
         bal_acc = try_config(model, xTrain, yTrain, xTest, yTest)
         if bal_acc > best_acc:
             best_acc = bal_acc
-            best_i = 0
+            best_i = i
     return best_acc, best_i
     
         
