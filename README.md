@@ -1,28 +1,120 @@
-# Multiple Multi-Modal Methods of Malignant Mammogram Classification (M6C)
+# RSNA Cancer Detection Paper
 
-Before attempting to run the code, please install all requirements found in requirements.txt.  
-Next, you will need to download the kaggle dataset for the scans (https://www.kaggle.com/competitions/rsna-breast-cancer-detection), or use the image versions of the scans posted for convinience (https://www.kaggle.com/datasets/radek1/rsna-mammography-images-as-pngs).  
 
-Next, you will need to preprocess the data, which can be done by running data_preprocessing.py.  
-Afterwards, splits need to be generated using generate_train_test_split.py and rebalanced with balance_dataset.py.  
-Afterwards, the normalization values for each dataset can be generated using split_means_stds.py.  
+## About
+**Term Project for Advanced Data Mining course (COMP 7944) at the University of Manitoba**
 
-Now that the data has been downloaded, preprocessed, split and balanced, it is ready to be trained on.  
-Each relevant training code can be found in its relevant folder.  
-Please note that we tried other techniques which we did not include in our paper as it ultimately did not fit our final theme.  
-The techniques in the paper correspond to the folders in our project as follows:  
-Naive classification (Method 1): technique_1/  
-Destructive Patching (Method 2): technique_3/  
-Early Concatenation (Method 3): technique_4/  
-Bidirectional Cross Attention (Method 4): technique_4/  
+Developement Stack
+- Python: 
+    - ResNets
+    - Vision Transformers
+    - Image augmentation libraries
+    - Scikit-learn (Classification)
+- Google Cloud Platforms: 
+    - Cloud GPU training and testing
 
-To run each method, just use the train_model.py file found in each. The best performing models will automatically be saved in the folder, as well as a text file summarizing the training process.  Running these techniques requires substantial GPU memory and time.  
+## Links
 
-The code for stage 2 training can be found in pred_training/.  
-In order to speed up training on the predictions made by various techniques, they were cached and turned into a new binary classification dataset, this was done using the generate_predicted_datasets.py, which accepts the names of the top performing models across each technique and will produce new datasets in the data_splits/ folder.  
-Once the prediction datasets are produced, all classifiers, classifier parameters and Stage 2 methods can be grid searched on using sklearn_classifiers.py.  This will produce a textfile describing the top performing models and their configurations. 
-Additionally in the pred_training/ folder, you can find methods for training RNNs, however this did not pan out and was not seriously brought up in the paper.  
+- [Paper: Multiple Multi-Modal Methods of Malignant Mammogram Classification (M6C)](Report.pdf) 
 
-Please let us know if you have any questions or would like our copy of the processed data.  
-Here is out repo: https://github.com/tranndt/rsna-cancer-detection   
+- [RSNA Breast Cancer Dataset](https://www.kaggle.com/competitions/rsna-breast-cancer-detection/data)
 
+## Abstract
+
+- In  this  paper,  we propose  multiple  multimodal  classification  techniques  and use  them  to  detect  cancers  in  the  RSNA  Breast  Cancer Dataset. 
+
+- We perform our own preprocessing and propose our own novel architectures to classify raw mammogram scan data.
+
+## The Dataset
+
+
+- The RSNA Screening Mammography Breast Cancer Detection Challenge dataset contains 54,706 DICOM (.dcm)scans across 11,913 patients as well as metadata about each patient and scan. 
+- Of these scans, 1158 (approximately 2%) were identified as containing cancer, and these were distributed across 486 patients. 
+
+1. Mammogram Scans:
+    - The mammogram scans were captured using one of six different views (CC, MLO, ML, LM, AT, LMO), across ten different machines from two different sites. 
+    - The dimensions of the scans are non-square and varied depending on the id of the machine which performed the scan. At full size, each scan is around 3000 pixels in each dimension.
+    - Despite only containing 54k scans, each is very detailed, and the total dataset takes up just over 314GB. 
+
+2. Tabular data
+    - Tabular data includes  atient information and image metadata, such as the patient's age, whether a biopsy was performed, whether it was invasive, the BIRADS score, if there is an implant, density level, and whether the image is a difficult negative case. 
+
+
+
+## Preprocessing
+Our preprocessing and enhancements steps includes:
+- Scale
+- Crop
+- Augmentation
+- Oversampling minority class was required
+
+![](assets/preview00.jpg)
+
+
+## Our Solution
+
+Our solution contains two key stages: (1) **determine the likelihood of cancer** of individual scans and (2) **aggregates the probability of all scans** to produce a prediction. Across both stages, we try multiple techniques for each to see what
+performs best.
+
+1. Stage 1 Techniques:
+    - Method 1: Naïve Classification
+    - Destructive Patching
+    - Early Concatenation
+    - Bidirectional Cross Attention
+
+2. Stage 2 Techniques
+    - Average Probability Feature
+    - Max Probability Feature
+    - Min Probability Feature
+    - Average, Min, Max Probability Features
+    - Padded Probability Features
+
+![](assets/preview01.jpg)
+
+
+## Findings and Results
+
+### 1. Image Classification
+
+- ResNet50 outperformed the ViT across all our techniques.
+    - Potentially due to the benefit of using ViTs come from long training sessions and extensive pretraining, with which we were heavily constrained.
+- Multi-modal techniques allowed for greater classification accuracy on single images
+    - Destructive Patching being our most successful technique, giving +3.1% accuracy on ViTs and +2.4% accuracy on the ResNet50 when compared to Naïve Classification
+
+![](assets/preview02.jpg)
+
+
+### 2. Probability Aggregation and Prediction
+
+
+- The classifier which was nearly consistently the best to use and the fastest to train was the Random Forest Classifier. 
+- Across all Stage 1 techniques, the best aggregate type to use was consistently either the 
+Max or Min Probability Feature. While there were concerns that these methods would oversimplify breast scans, they performed significantly better than methods which returned  more information such as Average, Min, Max Probability and Padded Probability Features
+
+![](assets/preview03.jpg)
+![](assets/preview04.jpg)
+
+### 3. Solution Overall
+
+- Overall, ViT based approaches were able to increase their accuracy to 66.7%, and Resnet50 based approaches achieved the highest accuracy across all methods at 70.2% 
+accuracy.
+
+- The best performing technique, ResNet50 with Destructive Patching and Minimum Probability Aggregation had the following characteristics of its predictions on the test set:  
+
+![](assets/preview05.jpg)
+
+
+## Limitations and Future Work
+
+- Constraints on time and computational resources. Large and powerful models like ViTs benefit from having long training times on very large amounts of data. We had to train for fewer epochs and perform less exhaustive grid searches than preferable. 
+- Trying our multimodal methods on a large, standardized dataset such as the NYU Breast Cancer Screening Dataset would yield more informative results which could be compared to state-of-the-art techniques. 
+
+
+## Credit and Acknowledgement
+
+Team Members:
+- Jase Tran
+- Christopher Vattheuer
+
+Project Supervisor and Course Instructor: 
+- Dr. Carson K. Leung
